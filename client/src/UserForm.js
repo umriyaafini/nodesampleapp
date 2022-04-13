@@ -5,9 +5,9 @@ import { sentToLogger } from './lib/utils';
 import { Form, FormGroup, Label, Input, Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
 export default function UserForm({ onClose }) {
-    const [firstName, setFirstName] = useState('John');
-    const [lastName, setLastName] = useState('Doe');
-    const [address, setAddress] = useState('Yogyakarta, Indonesia');
+    const [firstName, setFirstName] = useState();
+    const [lastName, setLastName] = useState();
+    const [address, setAddress] = useState();
     const [score, setScore] = useState(0);
     const [status, setStatus] = useState();
     const [validationMessage, setValidationMessage] = useState('');
