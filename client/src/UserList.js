@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getUsers } from './lib/user';
+import { getUsers, deleteUser } from './lib/user';
 import { sentToLogger } from './lib/utils';
 
 import { Container, Table, Button } from 'reactstrap';
@@ -10,6 +10,7 @@ import UserForm from './UserForm';
 export default function UserList() {
     const [users, setUsers] = useState([]);
     const [showAddUserModal, setShowAddUserModal] = useState(false);
+    const [selectedUser, setSelectedUser] = useState();
 
     useEffect(() => {
         getUsers()
@@ -22,14 +23,19 @@ export default function UserList() {
             });
     }, [showAddUserModal]);
 
-    function handleEditData(id) {
-        // TBD
-        console.log(id);
+    function handleEditData(user) {
+        setSelectedUser({ ...user });
+        setShowAddUserModal(true);
     }
 
     function handleDeleteData(id) {
-        // TBD
-        console.log(id);
+        deleteUser(id)
+            .then((res) => {
+                console.log(res);
+            })
+            .catch((err) => {
+                sentToLogger(err);
+            });
     }
 
     function handleAddUser() {
@@ -65,7 +71,7 @@ export default function UserList() {
                                 key={user.id}
                                 index={index}
                                 {...user}
-                                onEdit={() => handleEditData()}
+                                onEdit={() => handleEditData(user)}
                                 onDelete={() => handleDeleteData(user.id)}
                             />
                         ))
@@ -74,7 +80,7 @@ export default function UserList() {
                     )}
                 </tbody>
             </Table>
-            {showAddUserModal && <UserForm onClose={() => setShowAddUserModal(false)} />}
+            {showAddUserModal && <UserForm selectedUser={selectedUser} onClose={() => setShowAddUserModal(false)} />}
         </Container>
     );
 }

@@ -1,12 +1,12 @@
 export const getUsers = () => fetch('/api/users').then((res) => res.json());
 
-export const updateUser = ({ id, data }) =>
+export const updateUser = (id, updatedData) =>
     fetch(`/api/users/${id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(updatedData)
     }).then((res) => res.json());
 
 export const createUser = (newUser) =>
@@ -16,6 +16,11 @@ export const createUser = (newUser) =>
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(newUser)
+    }).then((res) => res.json());
+
+export const deleteUser = (id) =>
+    fetch(`/api/users/${id}`, {
+        method: 'DELETE'
     }).then((res) => res.json());
 
 export const dateFormat = (utcDate) => {

@@ -1,16 +1,28 @@
-import React, { useState } from 'react';
-import { createUser } from './lib/user';
+import React, { useState, useEffect } from 'react';
+import { createUser, updateUser } from './lib/user';
 import { sentToLogger } from './lib/utils';
 
 import { Form, FormGroup, Label, Input, Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
-export default function UserForm({ onClose }) {
-    const [firstName, setFirstName] = useState();
+export default function UserForm({ onClose, selectedUser }) {
+    const [title, setTitle] = useState('Add User');
+    const [firstName, setFirstName] = useState(selectedUser && selectedUser.firstName);
     const [lastName, setLastName] = useState();
     const [address, setAddress] = useState();
     const [score, setScore] = useState(0);
     const [status, setStatus] = useState();
     const [validationMessage, setValidationMessage] = useState('');
+
+    useEffect(() => {
+        if (selectedUser) {
+            setTitle('Edit User');
+            setFirstName(selectedUser.firstName);
+            setLastName(selectedUser.lastName);
+            setAddress(selectedUser.address);
+            setScore(selectedUser.score);
+            setStatus(selectedUser.isActive);
+        }
+    }, []);
 
     function resetForm() {
         setFirstName('');
@@ -30,31 +42,54 @@ export default function UserForm({ onClose }) {
             return;
         }
 
-        createUser({
-            firstName,
-            lastName,
-            address,
-            score,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            isActive: status,
-            deletedAt: null
-        })
-            .then((res) => {
-                if (res) {
-                    resetForm();
-                    onClose();
-                }
+        // Edit data mode
+        if (selectedUser) {
+            updateUser(selectedUser.id, {
+                firstName,
+                lastName,
+                address,
+                score,
+                createdAt: selectedUser.createdAt,
+                updatedAt: new Date().toISOString(),
+                isActive: status,
+                deletedAt: null
             })
-            .catch((err) => {
-                sentToLogger(err);
-            });
+                .then((res) => {
+                    if (res) {
+                        resetForm();
+                        onClose();
+                    }
+                })
+                .catch((err) => {
+                    sentToLogger(err);
+                });
+        } else {
+            createUser({
+                firstName,
+                lastName,
+                address,
+                score,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                isActive: status,
+                deletedAt: null
+            })
+                .then((res) => {
+                    if (res) {
+                        resetForm();
+                        onClose();
+                    }
+                })
+                .catch((err) => {
+                    sentToLogger(err);
+                });
+        }
     }
 
     return (
         <div>
             <Modal isOpen>
-                <ModalHeader>Add User</ModalHeader>
+                <ModalHeader>{title}</ModalHeader>
                 <ModalBody>
                     <Form>
                         <FormGroup>
@@ -99,7 +134,7 @@ export default function UserForm({ onClose }) {
                                 id="score"
                                 name="score"
                                 placeholder="Score"
-                                type="score"
+                                type="number"
                                 value={score}
                                 onChange={(evt) => setScore(evt.target.value)}
                             />
@@ -110,7 +145,7 @@ export default function UserForm({ onClose }) {
                             <Label>Active</Label>
                         </FormGroup>
                     </Form>
-                    <p>*{validationMessage}</p>
+                    {validationMessage && <p>*{validationMessage}</p>}
                 </ModalBody>
                 <ModalFooter>
                     <Button onClick={onClose}>Cancel</Button>{' '}
