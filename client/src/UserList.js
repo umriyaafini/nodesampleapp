@@ -1,23 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { getUsers } from './lib/user';
+import { sentToLogger } from './lib/utils';
 
 import { Container, Table, Button } from 'reactstrap';
 import UserListItem from './UserListItem';
 
+import UserForm from './UserForm';
+
 export default function UserList() {
     const [users, setUsers] = useState([]);
+    const [showAddUserModal, setShowAddUserModal] = useState(false);
 
     useEffect(() => {
         getUsers()
             .then((res) => {
-                console.log(res);
                 setUsers(res);
             })
             .catch((err) => {
                 setUsers(null);
-                console.error(err);
+                sentToLogger(err);
             });
-    }, []);
+    }, [showAddUserModal]);
 
     function handleEditData(id) {
         // TBD
@@ -30,7 +33,7 @@ export default function UserList() {
     }
 
     function handleAddUser() {
-        // TBD
+        setShowAddUserModal(true);
     }
 
     return (
@@ -71,6 +74,7 @@ export default function UserList() {
                     )}
                 </tbody>
             </Table>
+            {showAddUserModal && <UserForm onClose={() => setShowAddUserModal(false)} />}
         </Container>
     );
 }
